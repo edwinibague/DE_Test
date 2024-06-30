@@ -3,11 +3,21 @@ import pandas as pd
 import datetime
 from dateutil import parser
 
-@task("Datos faltantes")
-def clean_rows(df):
+@task("Eliminacion de Datos faltantes o errones")
+def clean_rows(df, date_index):
     
-    index_null = df.isnull().any(axis=1)
-    return df.drop(index_null.index, axis = 0)
+    df = df.drop(date_index, axis=0)
+    to_drop = []
+    for i in df.interrows():
+        if not df[i[0], "cases"] >= 0 or not df[i[0], "deaths"] >= 0:
+            to_drop.append(i[0])
+    
+    if to_drop:
+        df = df.drop(to_drop, axis=0)
+    
+    df = df.dropna(axis=0, how= 'any')
+    
+    return df
 
 @task("Validacion de fecha")
 def Date_validation(df):

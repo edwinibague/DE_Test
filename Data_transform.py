@@ -2,6 +2,7 @@ from prefect import task
 import pandas as pd
 import datetime
 from dateutil import parser
+import numpy as np
 
 @task("Eliminacion de Datos faltantes o errones")
 def clean_rows(df, date_index):
@@ -39,3 +40,33 @@ def Date_validation(df):
         print("No han sido necesarias correcciones de formato de fecha en el DataFrame")
     
     return df, index_invalid_format
+
+
+@task("calculo de nuevos casos")
+def new_cases_deaths(df):
+    df['date'] = pd.to_datetime(df['date'])
+    
+    df = df.sort_values(by='date')
+      
+    df['new_cases'] = df['cases'].diff()
+    df['new_deaths'] = df['deaths'].diff()
+    
+    df = df.fillna(0)
+    
+    return df
+
+
+@task("Calidad de datos")
+def Calidad_data(df):
+    
+    negative_cases = df[df['new_cases'] < 0].index
+    negative_deaths = df[df['new_deaths']< 0].index
+        
+    negative_index = np.concatenate(negative_cases, negative_deaths)
+    negative_index = np.unique(negative_index)
+    
+     
+    df.drop(index=negative_index, axis=0)
+    df.drop_duplicates(subset=['date'], inplace=True)
+    
+    return df

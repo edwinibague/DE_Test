@@ -1,7 +1,9 @@
 import prefect
 from prefect import task, flow
+from prefect_gcp import BigQueryClient
 from prefect.tasks.github import load_repo
 import pandas as pd
+import Data_transform
 
 
 #Proceso ETL 
@@ -12,16 +14,25 @@ def load_data(url_repo, filename):
     Data = Repo_data.get_contents(filename)
     return Data
 
-@task("creacion Data frame")
-def data_frame(Data):
-    df = pd.read_csv(Data)
-    return df
-
 
 #Transformacion de datos 
-@task 
-
-
+@task("Transformacion de datos")
+def data_transform(Data): 
+    
+    DataFrame = Data_transform.Create_data_frame(Data=Data)
+    
+    df, index = Data_transform.Date_validation(Data_frame=DataFrame)
+    df = Data_transform.clean_rows(Data_frame=df, date_index = index)
+    df = Data_transform.new_cases_deaths(Data_frame=df)
+    df = Data_transform.Data_Quality(Data_frame=df)
+    
+    try:
+        df.to_csv("Data_C19.csv", index=False)
+        return True
+    except ValueError:
+        return False
+    
+    
 #Carga de datos
 @task 
 

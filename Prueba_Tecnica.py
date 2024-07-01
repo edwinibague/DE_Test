@@ -1,6 +1,5 @@
-import prefect
 from prefect import task, flow
-from prefect_gcp import BigQueryClient
+from prefect_gcp import BigQueryClient, CloudStorage
 from prefect.tasks.github import load_repo
 import pandas as pd
 import Data_transform
@@ -26,11 +25,7 @@ def data_transform(Data):
     df = Data_transform.new_cases_deaths(Data_frame=df)
     df = Data_transform.Data_Quality(Data_frame=df)
     
-    try:
-        df.to_csv("Data_C19.csv", index=False)
-        return True
-    except ValueError:
-        return False
+    return df
     
     
 #Carga de datos

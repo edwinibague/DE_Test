@@ -7,4 +7,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["prefect", "run"]
+ENTRYPOINT ["prefect", "run", "Prueba_Tecnica.py"]

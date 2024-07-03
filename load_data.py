@@ -1,5 +1,5 @@
 from prefect import task
-from credentials import backend
+from credentials import gcp_credentials_block
 from prefect_gcp.cloud_storage import cloud_storage_create_bucket, GcsBucket
 from prefect_gcp.bigquery import bigquery_create_table, bigquery_insert_stream
 from google.cloud import bigquery
@@ -10,7 +10,7 @@ from google.cloud import bigquery
 def upload_to_datalake(Data, bucket_name: str, path: str):
     
     try:
-        storage = cloud_storage_create_bucket(bucket_name, backend)
+        storage = cloud_storage_create_bucket(bucket_name, gcp_credentials_block)
         print(f"Se ha creado  el Datalake '{storage}' con exito.")
         blob = GcsBucket.upload_from_dataframe(df=Data,to_path=path)
         
@@ -35,7 +35,7 @@ def create_table(Project_id, dataset_id, table_id):
         dataset=dataset_id,
         table=table_id,
         schema=schema,
-        gcp_credentials=backend
+        gcp_credentials=gcp_credentials_block
     )
     
     return result

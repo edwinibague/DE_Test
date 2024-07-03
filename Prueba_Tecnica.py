@@ -8,10 +8,12 @@ import pandas as pd
 
 
 
+
+
 #Proceso ETL 
 #EXtraccin de datos 
 @task
-def load_data(url_repo):
+def extract_data(url_repo):
     """
     Carga datos desde un repositorio y devuelve los datos.
     Args:
@@ -27,8 +29,13 @@ def load_data(url_repo):
 #Transformacion de datos 
 @task
 def data_transform(Data): 
-    
-    #DataFrame = Data_transform.Create_data_frame(Data=Data)
+    """
+    Realiza la transformacion de los datos desde un dataframe.
+    Args:
+        Data (DataFrame): DataFrame con los datos a trasnformar.
+    returns:
+        df: DataFrame modificado con las trasnformaciones respectivas.
+    """   
     
     df, index = Data_transform.Date_validation(Data_frame=Data)
     df = Data_transform.clean_rows(Data_frame=df, date_index = index)
@@ -41,6 +48,15 @@ def data_transform(Data):
 #Carga de datos
 @task
 def upload_data_to_cloud(df, data):
+    """
+    Carga de datos a un datawerehouse por medio de bigQuery y creacionde dataLake.
+    Args:
+        df (DataFrame); DataFrame con trasnformaciones.
+        data (DataFrame); Dataframe con la informacion original sin transformar.
+    returns:
+        sin return
+    """
+    bigquery_warehouse_block = BigQueryWarehouse.load("dataload")
     
     Load_Data.upload_to_datalake(Data = data, bucket_name="DE_Bucket", path="data/Covid19.csv")
     
@@ -51,17 +67,19 @@ def upload_data_to_cloud(df, data):
     
     Load_Data.load_bq(data= df, table_ref=Table)
     
+    BigQueryWarehouse.close()
+    
 
 
 
 #Flujo principal
 @flow
-def ETL_presses():
-    Data = load_data(url_repo = "https://github.com/nytimes/covid-19-data/blob/master/us.csv?raw=true")
+def ETL_prosses():
+    Data = extract_data(url_repo = "https://github.com/nytimes/covid-19-data/blob/master/us.csv?raw=true")
     df = data_transform(Data)
     upload_data_to_cloud(df, Data)
     
     
 
 if __name__ == "__main__":
-    ETL_presses()
+    ETL_prosses()

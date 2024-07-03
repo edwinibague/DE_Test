@@ -1,7 +1,4 @@
-from prefect_gcp import GcpCredentials 
-
-backend = GcpCredentials(
-    service_account_file= "te-test-428005-35ac8b98f304.json"
-)
+from prefect_gcp import GcpCredentials
+gcp_credentials_block = GcpCredentials.load("detest", validate=False)
 
 project_id = "te-test-428005"

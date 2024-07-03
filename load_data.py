@@ -21,7 +21,7 @@ def upload_to_datalake(Data, bucket_name: str, path: str):
 # Creacion de data werehouse bigquery
 
 @task
-def create_table(Project_id, dataset_id, table_id):
+def create_table(dataset_id, table_id):
         
     schema = [
         bigquery.SchemaField("date", field_type="DATE"),
@@ -51,7 +51,7 @@ def load_bq(data, table_ref, dataset_id):
         dataset=dataset_id,
         table=table_ref,
         records=Data,
-        gcp_credentials=backend
+        gcp_credentials=gcp_credentials_block
     )
     
     return result

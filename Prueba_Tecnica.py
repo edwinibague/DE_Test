@@ -56,14 +56,14 @@ def upload_data_to_cloud(df, data):
     returns:
         sin return
     """
-    bigquery_warehouse_block = BigQueryWarehouse.load("dataload")
+    #bigquery_warehouse_block = BigQueryWarehouse.load("dataload")
     
     Load_Data.upload_to_datalake(Data = data, bucket_name="DE_Bucket", path="data/Covid19.csv")
     
     dataset_id = "Dataset_DE"
     table_id = "Table_DE"
 
-    Table = Load_Data.create_table(Project_id = project_id , dataset_id= dataset_id, table_id = table_id)
+    Table = Load_Data.create_table(dataset_id= dataset_id, table_id = table_id)
     
     Load_Data.load_bq(data= df, table_ref=Table)
     

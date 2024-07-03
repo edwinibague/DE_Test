@@ -1,10 +1,21 @@
 from prefect import task
 import pandas as pd
-import datetime
+from datetime import datetime
 from dateutil import parser
 import numpy as np
 
-@task("Eliminacion de Datos faltantes o errones")
+
+
+def validate_date(Date):
+    try:
+        perse_date = datetime.strptime(Date, "%Y-%m-%d")
+        return perse_date
+    except ValueError:
+        return None
+
+
+
+@task
 def clean_rows(Data_frame, date_index):
     
     Data_frame = Data_frame.drop(date_index, axis=0)
@@ -16,17 +27,11 @@ def clean_rows(Data_frame, date_index):
     
     return Data_frame
 
-@task("Validacion de fecha")
-def validate_date(Date):
-    try:
-        perse_date = parser.parse(Date, format="%Y-%m-%d")
-        return perse_date.strftime("%Y-%m-%d")
-    except ValueError:
-        return None
-
+@task
 def Date_validation(Data_frame):
     
     Data_frame["date"] = Data_frame["date"].apply(validate_date)
+
     invalid_index = Data_frame[Data_frame["date"].isnull()].index.tolist()
     if not invalid_index:
         print("No se requieren correcciones de formato de fecha en el DataFrame")
@@ -36,7 +41,8 @@ def Date_validation(Data_frame):
     return Data_frame, invalid_index
 
 
-@task("calculo de nuevos casos")
+
+@task
 def new_cases_deaths(Data_frame):
     Data_frame['date'] = pd.to_datetime(Data_frame['date'])
     
@@ -50,13 +56,13 @@ def new_cases_deaths(Data_frame):
     return Data_frame
 
 
-@task("Calidad de datos")
+@task
 def Data_Quality(Data_frame):
     
     negative_cases = Data_frame[Data_frame['new_cases'] < 0].index
     negative_deaths = Data_frame[Data_frame['new_deaths']< 0].index
         
-    negative_index = np.concatenate(negative_cases, negative_deaths)
+    negative_index = np.concatenate((negative_cases, negative_deaths))
     negative_index = np.unique(negative_index)
     
      
@@ -66,7 +72,7 @@ def Data_Quality(Data_frame):
     return Data_frame
 
 
-@task("creacion Data frame")
+@task
 def Create_data_frame(Data):
     df = pd.read_csv(Data)
     return df

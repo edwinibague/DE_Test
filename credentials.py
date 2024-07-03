@@ -1,9 +1,7 @@
-from prefect.backends import GcpBackend
+from prefect_gcp import GcpCredentials 
 
-
-backend = GcpBackend(
-    project_id = "te-test-428005",
-    key_path = "te-test-428005-35ac8b98f304.json"
+backend = GcpCredentials(
+    service_account_file= "te-test-428005-35ac8b98f304.json"
 )
 
 project_id = "te-test-428005"

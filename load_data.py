@@ -1,17 +1,18 @@
 from prefect import task
 from credentials import backend
-from prefect_gcp.storage import CloudStorage 
+from prefect_gcp.cloud_storage import cloud_storage_create_bucket, GcsBucket
+from prefect_gcp.bigquery import bigquery_create_table, bigquery_insert_stream
 from google.cloud import bigquery
 
 
 #creacion de datalake con data virgen
-@task("Creacion de Datalake")
+@task
 def upload_to_datalake(Data, bucket_name: str, path: str):
     
     try:
-        storage = CloudStorage(backend)
-        storage.upload_string(Data, bucket_name, path)
-        print("Datalake creado con exito.")
+        storage = cloud_storage_create_bucket(bucket_name, backend)
+        print(f"Se ha creado  el Datalake '{storage}' con exito.")
+        blob = GcsBucket.upload_from_dataframe(df=Data,to_path=path)
         
     except:
         print("Error en creacion de data lake. Tarea fallida...")
@@ -19,28 +20,39 @@ def upload_to_datalake(Data, bucket_name: str, path: str):
 
 # Creacion de data werehouse bigquery
 
-@task("creacion de tabla bigquery")
-def create_table(data, Project_id, dataset_id, table_id):
+@task
+def create_table(Project_id, dataset_id, table_id):
+        
+    schema = [
+        bigquery.SchemaField("date", field_type="DATE"),
+        bigquery.SchemaField("cases", field_type="INTEGER"),
+        bigquery.SchemaField("deaths", field_type="INTEGER"),
+        bigquery.SchemaField("new_cases", field_type="INTEGER"),
+        bigquery.SchemaField("new_deaths", field_type="INTEGER")
+    ]
     
-    client = bigquery.Client(project= Project_id)
-    table_ref = client.dataset(dataset_id).table(table_id)
+    result = bigquery_create_table(
+        dataset=dataset_id,
+        table=table_id,
+        schema=schema,
+        gcp_credentials=backend
+    )
     
-    schema = bigquery.Schema.from_dataframe(data)
-    table = bigquery.Table(table_ref, schema=schema)
-    table.create_if_not_exists()
+    return result
     
-      
-@task("creacion de dataset")
-def create_dataset(dataset_id, project_id):
-    
-    client = bigquery.Client(project=project_id)
-    dataset = client.dataset(dataset_id)
-    dataset.create_if_not_exists()
     
 
-@task("Cargar data en BigQuery")
-def load_bq(data, table_ref, job_configure):
-    client = bigquery.Client()
-    load_job = client.load_table_from_dataframe(data, table_ref,job_config=job_configure)
-    load_job.result()
+@task
+def load_bq(data, table_ref, dataset_id):
+    
+    Data = data.to_dict()
+    
+    result = bigquery_insert_stream(
+        dataset=dataset_id,
+        table=table_ref,
+        records=Data,
+        gcp_credentials=backend
+    )
+    
+    return result
     

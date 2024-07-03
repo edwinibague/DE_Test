@@ -4,6 +4,15 @@ En este proyecto se quiere realizar la solucion al test para Data engineer que s
 
 El proceso ETL que se ha realizado mediante el orquestador prefect cuenta con las diferentes etapas las cuales se dividieron en 3. cada unsa se explica acontinuacion.
 
+project_root/
+├── ETL_workflow.py        # Main script with Prefect flow definition
+├── Data_transform.py      # Script for data transformation logic
+├── Load_Data.py           # Script for data upload functions
+├── credentials.py         # (Optional) Script for storing credentials
+├── requirements.txt      # File listing project dependencies
+└── README.md             # This documentation file
+
+
 ## Extraccion 
 El proceso de extraccion de la informacion se ha realizado de manera rapida, para ello se ha hecho uso de la libreria de pandas con la cual se ha obtenido el archivo desde el repositorio de origen: https://github.com/nytimes/covid-19-data/blob/master/us.csv, a este link se le ha agregado ?raw=true con lo cual se crea el formato raw del archivo de origen para que al leer desde el repositorio, este archivo solo contenga los datos que son necesarios.
 Se ha definido la tarea extract_data, en la cual se llama la libreria pandas y se ha leido como csv teniendo encuenta de dejar la cabecera del formato original.

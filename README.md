@@ -5,12 +5,12 @@ En este proyecto se quiere realizar la solucion al test para Data engineer que s
 El proceso ETL que se ha realizado mediante el orquestador prefect cuenta con las diferentes etapas las cuales se dividieron en 3. cada unsa se explica acontinuacion.
 
 project_root/
-├── ETL_workflow.py        # Main script with Prefect flow definition
-├── Data_transform.py      # Script for data transformation logic
-├── Load_Data.py           # Script for data upload functions
-├── credentials.py         # (Optional) Script for storing credentials
-├── requirements.txt      # File listing project dependencies
-└── README.md             # This documentation file
+├── ETL_workflow.py        # Main script with Prefect flow definition <br />
+├── Data_transform.py      # Script for data transformation logic <br />
+├── Load_Data.py           # Script for data upload functions <br />
+├── credentials.py         # (Optional) Script for storing credentials <br />
+├── requirements.txt      # File listing project dependencies <br />
+└── README.md             # This documentation file <br />
 
 
 ## Extraccion 
